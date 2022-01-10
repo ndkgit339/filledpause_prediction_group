@@ -1,0 +1,60 @@
+hydra:
+  run:
+    dir: /media/yuta_matsunaga/Matsunaga_disk_1/disfluency/grouping_prediction-lrec2022/prediction/yamazaki2020_bilstm
+
+defaults:
+  - _self_
+  - model: bilstm_bert
+
+random_seed: 42
+
+data:
+  batch_size: 32
+  num_workers: 4
+
+  in_dir: ./preprocessed_data/CSJ/ver220109/infeats
+  out_dir: ./preprocessed_data/CSJ/ver220109/outfeats
+
+  filler_list: ./corpus/CSJ/filler.list
+
+train:
+  out_dir: exp/CSJ/ver220110
+
+  loss_weights: True
+  
+  fine_tune: False
+  resume: False
+  load_ckpt_path: exp/CSJ/ver211120_1/ckpt/epoch=31-step=59999.ckpt
+
+  gpus: 1
+  auto_select_gpus: True
+  max_steps: 70000
+  check_val_every_n_epoch: 5
+  gradient_clip_val: 0.5
+
+  optim:
+    optimizer:
+      name: Adam
+      params:
+        lr: 1.0e-05
+    lr_scheduler:
+      name: StepLR
+      params:
+        step_size: 100000
+        gamma: 0.1
+
+  checkpoint:
+    params:
+      dirname: ckpt
+      monitor: val_loss
+      every_n_train_steps: 10000
+      # save_last: True
+      save_top_k: -1
+
+  logging:
+    name: log
+    version: ver
+
+eval:
+  checkpoint:
+    # path: /home/sarulab/yuta_matsunaga/disfluency/predict/yamazaki2020_bilstm/exp/CSJ/all/log_log/0905_1_0905_1/checkpoints/last.ckpt
